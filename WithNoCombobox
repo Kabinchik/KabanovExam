@@ -1,0 +1,83 @@
+using System.Linq;
+using System.Windows;
+using KabanovExam.Models;
+
+namespace KabanovExam
+{
+    public partial class AddEditPartner : Window
+    {
+        private Partner _partner;
+        private bool _isEditMode;
+
+        public AddEditPartner(Partner partner = null)
+        {
+            InitializeComponent();
+
+            _partner = partner ?? new Partner();
+            _isEditMode = partner != null;
+
+            if (_isEditMode)
+                LoadPartnerData();
+        }
+
+        private void LoadPartnerData()
+        {
+            NaimenovaniePartnera.Text = _partner.NaimenovaniePartnera;
+            Familiya.Text = _partner.Familiya;
+            Imya.Text = _partner.Imya;
+            Otchestvo.Text = _partner.Otchestvo;
+            Telephone.Text = _partner.Telephone;
+            Email.Text = _partner.Email;
+            Index.Text = _partner.Index;
+            Oblast.Text = _partner.Oblast;
+            Gorod.Text = _partner.Gorod;
+            Ulica.Text = _partner.Ulica;
+            Dom.Text = _partner.Dom.ToString();
+            Reyting.Text = _partner.Reyting.ToString();
+            INN.Text = _partner.INN;
+            StatusTextBox.Text = _partner.Status;
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            using (var context = new KabanovExamContext())
+            {
+                if (_isEditMode)
+                {
+                    var partnerToUpdate = context.Partners
+                        .First(p => p.Partners_ID == _partner.Partners_ID);
+
+                    FillPartnerData(partnerToUpdate);
+                }
+                else
+                {
+                    var newPartner = new Partner();
+                    FillPartnerData(newPartner);
+                    context.Partners.Add(newPartner);
+                }
+
+                context.SaveChanges();
+            }
+
+            Close();
+        }
+
+        private void FillPartnerData(Partner partner)
+        {
+            partner.NaimenovaniePartnera = NaimenovaniePartnera.Text;
+            partner.Familiya = Familiya.Text;
+            partner.Imya = Imya.Text;
+            partner.Otchestvo = Otchestvo.Text;
+            partner.Telephone = Telephone.Text;
+            partner.Email = Email.Text;
+            partner.Index = Index.Text;
+            partner.Oblast = Oblast.Text;
+            partner.Gorod = Gorod.Text;
+            partner.Ulica = Ulica.Text;
+            partner.Dom = int.Parse(Dom.Text);
+            partner.Reyting = int.Parse(Reyting.Text);
+            partner.INN = INN.Text;
+            partner.Status = StatusTextBox.Text;
+        }
+    }
+}
