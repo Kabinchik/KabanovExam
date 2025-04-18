@@ -1,0 +1,85 @@
+using System.Linq;
+using System.Windows;
+using KabanovExam.Models;
+
+namespace KabanovExam
+{
+    public partial class AddEditPartner : Window
+    {
+        private Partner _partner;
+        private bool _isEditMode;
+
+        public AddEditPartner(Partner partner = null)
+        {
+            InitializeComponent();
+
+            // Задаём фиксированные типы прямо в ComboBox
+            PartnerTypeComboBox.ItemsSource = new[] { "Оптовик", "Розничный", "VIP", "Другой" };
+
+            _isEditMode = partner != null;
+            _partner = partner ?? new Partner();
+
+            if (_isEditMode)
+                LoadPartnerData(_partner);
+        }
+
+        private void LoadPartnerData(Partner partner)
+        {
+            NaimenovaniePartnera.Text = partner.NaimenovaniePartnera;
+            PartnerTypeComboBox.SelectedItem = partner.TipPartnera;
+            Familiya.Text = partner.Familiya;
+            Imya.Text = partner.Imya;
+            Otchestvo.Text = partner.Otchestvo;
+            Telephone.Text = partner.Telephone;
+            Email.Text = partner.Email;
+            Index.Text = partner.Index;
+            Oblast.Text = partner.Oblast;
+            Gorod.Text = partner.Gorod;
+            Ulica.Text = partner.Ulica;
+            Dom.Text = partner.Dom.ToString();
+            Reyting.Text = partner.Reyting.ToString();
+            INN.Text = partner.INN;
+        }
+
+        private void ApplyFormDataToPartner(Partner partner)
+        {
+            partner.NaimenovaniePartnera = NaimenovaniePartnera.Text;
+            partner.TipPartnera = PartnerTypeComboBox.SelectedItem?.ToString();
+            partner.Familiya = Familiya.Text;
+            partner.Imya = Imya.Text;
+            partner.Otchestvo = Otchestvo.Text;
+            partner.Telephone = Telephone.Text;
+            partner.Email = Email.Text;
+            partner.Index = Index.Text;
+            partner.Oblast = Oblast.Text;
+            partner.Gorod = Gorod.Text;
+            partner.Ulica = Ulica.Text;
+            partner.Dom = int.Parse(Dom.Text);
+            partner.Reyting = int.Parse(Reyting.Text);
+            partner.INN = INN.Text;
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            using (var context = new KabanovExamContext())
+            {
+                if (_isEditMode)
+                {
+                    var partnerToUpdate = context.Partners
+                        .First(p => p.Partners_ID == _partner.Partners_ID);
+                    ApplyFormDataToPartner(partnerToUpdate);
+                }
+                else
+                {
+                    var newPartner = new Partner();
+                    ApplyFormDataToPartner(newPartner);
+                    context.Partners.Add(newPartner);
+                }
+
+                context.SaveChanges();
+            }
+
+            Close();
+        }
+    }
+}
